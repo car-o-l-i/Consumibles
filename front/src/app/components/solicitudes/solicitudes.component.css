@@ -1,0 +1,54 @@
+/* Estilos para la tabla */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: white;
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* Línea separadora */
+  }
+  
+  .table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5); /* Línea inferior de los encabezados */
+  }
+  
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.1); /* Fondo de las filas impares */
+  }
+  
+  /* Estilos para los botones y selects */
+  button,
+  select {
+    margin-right: 10px; /* Espaciado entre elementos */
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    background-color: #3692f5; /* Azul */
+    color: white;
+    cursor: pointer;
+  }
+  
+  button:hover,
+  select:hover {
+    background-color: #0056b3; /* Azul más oscuro al pasar el mouse */
+  }
+  
+  /* Estilos para el contenedor de los botones y selects */
+  div.buttons-container {
+    margin-bottom: 20px; /* Espacio inferior */
+  }
+  
+  /* Estilos para el contenedor general */
+  .container {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #FFADAD;
+    color: white;
+    padding: 20px;
+  }
+  

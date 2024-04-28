@@ -1,0 +1,207 @@
+<nav>
+  <app-nav></app-nav>
+</nav>
+<body>
+  <p-dataView #dv [value]="this.insumosService.insumos">
+    <ng-template pTemplate="header">
+      <div class="flex justify-content-end">
+        <p-dataViewLayoutOptions></p-dataViewLayoutOptions>
+      </div>
+    </ng-template>
+    <ng-template let-product pTemplate="list" let-products>
+      <div class="grid grid-nogutter">
+        <div
+          class="col-12"
+          *ngFor="
+            let insumo of insumosService.insumos;
+            let i = index;
+            let first = first
+          "
+        >
+          <div
+            class="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4"
+            [ngClass]="{ 'border-top-1 surface-border': !first }"
+          >
+            <div *ngIf="insumo.image; else other">
+              <img
+                class="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round"
+                [src]="insumo.image"
+                [alt]="insumo.nombre"
+              />
+            </div>
+
+            <ng-template #other>
+              <img
+                class="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round"
+                *ngIf="imagenSeleccionada"
+                [src]="imagenesUrl[i]"
+              />
+            </ng-template>
+
+            <div
+              class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4"
+            >
+              <div
+                class="flex flex-column align-items-center sm:align-items-start gap-3"
+              >
+                <div class="text-2xl font-bold text-900">
+                  {{ insumo.nombre }}
+                </div>
+                <div class="flex align-items-center gap-3">
+                  <p-tag [severity]="getSeverity(insumo)"></p-tag>
+                </div>
+              </div>
+              <div
+                class="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2"
+              >
+                <span class="text-2xl font-semibold"
+                  >Disponible: {{ insumo.cantidad_disponible }} pzs</span
+                >
+
+                <!-- Botón para agregar imagen -->
+                <div *ngIf="rol == 'administrador'">
+                  <input
+                    type="file"
+                    id="fileInput_{{ i }}"
+                    style="display: none"
+                    (change)="onFileSelected($event, i)"
+                  />
+                  <button
+                    class="btn btn-primary btn-blue"
+                    (click)="openFilePicker(i)"
+                  >
+                    Agregar Imagen
+                  </button>
+                </div>
+
+                <!-- Input oculto para seleccionar archivo -->
+                <input
+                  type="file"
+                  id="fileInput"
+                  style="display: none"
+                  accept="image/*"
+                />
+
+                <div *ngIf="rol != 'administrador'">
+                  <button
+                    pButton
+                    *ngIf="rol == 'encargado'"
+                    class="md:align-self-end mb-2 p-button-rounded"
+                    (click)="showDialog(insumo.nombre)"
+                    [disabled]="product.inventoryStatus === 'OUTOFSTOCK'"
+                  >
+                    solicitar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template let-product pTemplate="grid" let-products>
+      <div class="grid grid-nogutter">
+        <div
+          class="col-12 sm:col-6 lg:col-12 xl:col-4 p-2"
+          *ngFor="let insumo of insumosService.insumos; let i = index"
+        >
+          <div class="p-4 border-1 surface-border surface-card border-round">
+            <div
+              class="flex flex-wrap align-items-center justify-content-between gap-2"
+            >
+              <p-tag
+                [value]="product.inventoryStatus"
+                [severity]="getSeverity(insumo)"
+              ></p-tag>
+            </div>
+            <div class="flex flex-column align-items-center gap-3 py-5">
+              <div *ngIf="insumo.image; else other">
+                <img
+                  class="w-9 shadow-2 border-round"
+                  [src]="insumo.image"
+                  [alt]="insumo.nombre"
+                />
+              </div>
+
+              <ng-template #other>
+                <img
+                  class="w-9 shadow-2 border-round"
+                  *ngIf="imagenSeleccionada"
+                  [src]="imagenesUrl[i]"
+                />
+              </ng-template>
+
+              <div class="text-2xl font-bold">{{ insumo.nombre }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-between">
+              <span class="text-2xl font-semibold"
+                >Disponible: {{ insumo.cantidad_disponible }} pzs</span
+              >
+              <button
+                pButton
+                *ngIf="rol == 'encargado'"
+                icon="pi pi-sum"
+                class="p-button-rounded"
+                (click)="showDialog(insumo.nombre)"
+                [disabled]="insumo.cantidad_disponible === 0"
+              >
+                solicitar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </p-dataView>
+  <p-dialog
+    header="Solicitar Consumible"
+    [(visible)]="visible"
+    [style]="{ width: '50vw', height: '60vh' }"
+  >
+    <form [formGroup]="insumoForm" (submit)="enviarSolicitud()">
+      <div class="form-group">
+        <label for="nombre">departamento</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dep"
+          formControlName="departamento"
+          id="departamento"
+          placeholder=""
+          readonly
+        />
+      </div>
+      <div class="form-group">
+        <label for="consumible">consumible</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="nombre"
+          formControlName="consumible"
+          id="consumible"
+          placeholder=""
+          readonly
+        />
+      </div>
+      <div class="form-group">
+        <label for="cantidad">Cantidad</label>
+        <input
+          type="number"
+          class="form-control"
+          formControlName="cantidad"
+          id="cantidad"
+          placeholder="0"
+        />
+      </div>
+      <div
+        class="form-group mb-4 text-center"
+        style="padding: 15px 0; border-radius: 10px"
+      >
+        <!-- Añadí la clase "mb-4" para agregar un espacio adicional -->
+        <button type="submit" class="btn btn-primary btn-block">
+          Realizar Solicitud
+        </button>
+      </div>
+    </form>
+  </p-dialog>
+</body>

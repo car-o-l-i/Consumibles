@@ -1,0 +1,68 @@
+<nav>
+  <app-nav></app-nav>
+</nav>
+<table class="table table-striped" style="border-radius: 10px; overflow: hidden; background: #FFADAD; color: white">
+    <thead>
+      <tr>
+        <th>Departamento</th>
+        <th>Consumible</th>
+        <th>Cantidad</th>
+        <th>Estado</th>
+        <th>Fecha</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let solicitud of solicitudes">
+        <td>{{ solicitud.departamento }}</td>
+        <td>{{ solicitud.consumible }}</td>
+        <td>{{ solicitud.cantidad }}</td>
+        <td>{{ solicitud.estado }}</td>
+        <td>{{ solicitud.fecha | date }}</td>
+        <td>
+          <button (click)="aceptarSolicitud(solicitud)">Aceptar</button><button (click)="rechazarSolicitud(solicitud)">Rechazar</button>
+
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div>
+    <button (click)="getSolicitudes()">Mostrar Todas</button>
+    <select
+      [(ngModel)]="departamento"
+      (change)="getSolicitudesByDepartamento(departamento)"
+      name="departamento"
+      id=""
+      >
+      <option value="">filtrar por departamento</option>
+      <option
+        [value]="departamento.nombre"
+        *ngFor="let departamento of departamentoService.departamentos"
+      >
+        {{ departamento.nombre }}
+      </option>
+    </select>
+    <select
+      [(ngModel)]="consumible"
+      (change)="getSolicitudesByConsumible(consumible)"
+      name="consumible"
+      id=""
+      >
+      <option value="">filtrar por Consumible</option>
+      <option
+        [value]="consumible.nombre"
+        *ngFor="let consumible of insumosService.insumos"
+      >
+        {{ consumible.nombre }}
+      </option>
+    </select>
+    <select [(ngModel)]="estado" (change)="getSolicitudesByEstado(estado)" name="estado" id="selectEstado">
+        <option value="">Por estatus</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="En Proceso">En Proceso</option>
+        <option value="Completado">Completado</option>
+      </select>
+    <!-- <button (click)="getSolicitudesByFecha()">Por Fecha</button> -->
+  </div>
+  

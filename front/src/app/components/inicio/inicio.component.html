@@ -1,0 +1,31 @@
+<nav>
+    <app-nav></app-nav>
+</nav>
+<section>
+    <p-card header="Bienvenido">
+        <div class="flex flex-column align-items-center">
+            <label for="">Iniciar como encargado de</label>
+            <select
+            [(ngModel)]="departamento"
+            (change)="validar()"
+            name="departamento"
+            id=""
+            >
+            <option selected value="">Departamento</option>
+            <option
+              [value]="departamento.nombre"
+              *ngFor="let departamento of departamentoService.departamentos"
+            >
+              {{ departamento.nombre }}
+            </option>
+          </select>
+            <br/>
+            <p-button (onClick)="entrar()" [disabled]="dep">Entrar</p-button>
+            <br/>
+            <p>------- O -------</p>
+            <label for="">Iniciar como Administrador de Almacen</label>
+            <br/>
+            <p-button (onClick)="entrarAdm()">Entrar</p-button>
+        </div>
+    </p-card>
+</section>
