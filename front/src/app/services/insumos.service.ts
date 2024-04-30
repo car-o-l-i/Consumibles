@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class InsumosService {
+solicitudes: any;
   guardarInsumo(value: Partial<{ departamento: string | null; consumible: string | null; cantidad: string | null; estado: string | null; imagen: string | null; }>, imagenSeleccionada: File | null) {
     throw new Error('Method not implemented.');
   

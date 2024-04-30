@@ -1,8 +1,20 @@
 <nav>
   <app-nav></app-nav>
 </nav>
+
+<p>
+    <!-- Agrega esto donde deseas mostrar el botón -->
+    <button pButton type="button" label="Ver mis Solicitudes" (click)="mostrarListaSolicitados()" *ngIf="dep != ''"></button>
+</p>
+
+
+
 <body>
-  <p-dataView #dv [value]="this.insumosService.insumos">
+
+  <input class="form-control" id="buscarInsumo" type="text" placeholder="Buscar insumo" (keyup)="filtrarNombre($event)">
+
+
+  <p-dataView #dv [value]="this.listaInsumos">
     <ng-template pTemplate="header">
       <div class="flex justify-content-end">
         <p-dataViewLayoutOptions></p-dataViewLayoutOptions>
@@ -13,7 +25,7 @@
         <div
           class="col-12"
           *ngFor="
-            let insumo of insumosService.insumos;
+            let insumo of listaInsumos;
             let i = index;
             let first = first
           "
@@ -44,7 +56,7 @@
               <div
                 class="flex flex-column align-items-center sm:align-items-start gap-3"
               >
-                <div class="text-2xl font-bold text-900">
+                <div class="text-2xl font-bold text-900 nombreInsumo">
                   {{ insumo.nombre }}
                 </div>
                 <div class="flex align-items-center gap-3">
@@ -103,7 +115,7 @@
       <div class="grid grid-nogutter">
         <div
           class="col-12 sm:col-6 lg:col-12 xl:col-4 p-2"
-          *ngFor="let insumo of insumosService.insumos; let i = index"
+          *ngFor="let insumo of listaInsumos; let i = index"
         >
           <div class="p-4 border-1 surface-border surface-card border-round">
             <div
@@ -204,4 +216,30 @@
       </div>
     </form>
   </p-dialog>
+
+  <!-- Dialogo lista -->
+  <p-dialog
+    header="Lista Solicitudes"
+    [(visible)]="mostrarLista"
+    [style]="{ width: '50vw', height: '60vh' }"
+  >
+    <div *ngFor="let solicitud of solicitudService.solicitudes">
+      <div style="display: flex; justify-content: space-between;">
+        <div>
+          <strong>Consumible: </strong> {{ solicitud.consumible }}
+        </div>
+        <div>
+          <strong>Estado: </strong> {{ solicitud.estado }}
+        </div>
+      </div>
+      <div>
+        <strong>Fecha: </strong> {{ solicitud.fecha }}
+      </div>
+      <div>
+        <strong>Cantidad: </strong> {{ solicitud.cantidad }}
+      </div>
+      <hr>
+    </div>
+  </p-dialog>
+  
 </body>

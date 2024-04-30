@@ -13,19 +13,19 @@ import { Solicitud } from '../../interfaces/solicitud';
   styleUrls: ['./insumos.component.css'],
 })
 export class InsumosComponent {
-  // Declaración de insumoForm
   visible: boolean = false;
   insumoForm = this.fb.group({
-    // Inicialización de insumoForm
     departamento: ['', [Validators.required]],
     consumible: ['', [Validators.required]],
     cantidad: ['', [Validators.required]],
-    estado: ['En espera'],
+    estado: ['Pendiente'],
   });
   rol = '';
   dep = '';
   imagenSeleccionada: File | null = null;
   imagenesUrl: string[] = [];
+  mostrarLista: boolean = false; // Nueva propiedad para controlar la visibilidad de la lista
+  listaInsumos: insumo[] = [];
 
   constructor(
     public insumosService: InsumosService,
@@ -39,39 +39,44 @@ export class InsumosComponent {
   }
 
   ngOnInit() {
-    this.insumosService.getProducts().subscribe((data) => {
+    this.insumosService.getProducts().subscribe((data: insumo[]) => {
       this.insumosService.insumos = data;
-      console.log(data);
-      
-      data.forEach(x => {
+      this.listaInsumos = data;
+      data.forEach((x) => {
         this.imagenesUrl.push('');
       });
     });
+
+    if (this.dep != '') {
+      this.solicitudService
+        .getSolicitudesByDepartamento(this.dep)
+        .subscribe((data) => {
+          this.solicitudService.solicitudes = data;
+          data.forEach((x) => {
+            this.imagenesUrl.push('');
+          });
+        });
+    }
+
     this.getDepartamentos();
-    console.log(this.dep);
-    console.log(this.rol);
   }
 
   openFilePicker(i: number) {
-    const inputElement = document.getElementById(`fileInput_${i}`) as HTMLInputElement;
+    const inputElement = document.getElementById(
+      `fileInput_${i}`
+    ) as HTMLInputElement;
     if (inputElement) {
-      inputElement.click(); // Simula el clic en el input de tipo file
+      inputElement.click();
     }
   }
-  
+
   onFileSelected(event: any, i: number) {
-    console.log(i);
-  
     this.imagenSeleccionada = event.target.files[0] as File;
     if (this.imagenSeleccionada) {
-      this.imagenesUrl[i] = URL.createObjectURL(this.imagenSeleccionada); // Crea la URL de la imagen seleccionada
+      this.imagenesUrl[i] = URL.createObjectURL(this.imagenSeleccionada);
     }
-
-    console.log(i, this.imagenesUrl);
-    
   }
 
-  // Métodos get para acceder a los controles del formulario
   get departamento() {
     return this.insumoForm.get('departamento');
   }
@@ -99,7 +104,6 @@ export class InsumosComponent {
   showDialog(consumible: string) {
     this.nombre = consumible;
     this.visible = true;
-    //console.log(consumible);
   }
 
   getDepartamentos() {
@@ -115,7 +119,6 @@ export class InsumosComponent {
 
   enviarSolicitud() {
     const datos = { ...this.insumoForm.value };
-    console.log(datos);
     this.solicitudService
       .insertarSolicitud(datos as unknown as Solicitud)
       .subscribe(
@@ -123,9 +126,28 @@ export class InsumosComponent {
           const { message, code } = res;
           this.messageService.add({
             severity: 'success',
-            summary: 'Registro Exitosos',
+            summary: 'Registro Exitoso',
             detail: message,
           });
+
+          if (datos.departamento !== null && datos.departamento !== undefined) {
+            const solicitud: Solicitud = {
+              ...datos,
+              consumible: datos.consumible!,
+              cantidad: parseInt(datos.cantidad!),
+              estado: 'Pendiente',
+              departamento: datos.departamento!,
+            };
+            if (!this.insumosService.solicitudes) {
+              this.insumosService.solicitudes = [solicitud];
+            } else {
+              this.insumosService.solicitudes.push(solicitud);
+            }
+          } else {
+            console.error('El departamento no es válido.');
+            return;
+          }
+
           this.insumoForm.reset();
           this.visible = false;
         },
@@ -141,5 +163,22 @@ export class InsumosComponent {
           });
         }
       );
+  }
+
+  // Método para mostrar la lista de consumibles solicitados
+  mostrarListaSolicitados() {
+    this.mostrarLista = true;
+    console.log(this.solicitudService.solicitudes);
+  }
+
+  filtrarNombre(event: any) {
+    let inputText = (event.target as HTMLInputElement).value;
+    if (inputText.trim() === '') {
+      this.listaInsumos = this.insumosService.insumos;
+    } else {
+      this.listaInsumos = this.insumosService.insumos.filter((insumo) =>
+        insumo.nombre.toLowerCase().includes(inputText.trim().toLowerCase())
+      );
+    }
   }
 }
